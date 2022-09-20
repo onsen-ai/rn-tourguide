@@ -145,14 +145,22 @@ export const TourGuideProvider = ({
       if (scrollRef && step) {
         await step.wrapper.measureLayout(
           findNodeHandle(scrollRef.current),
-          (x: number, y: number, w: number, h: number) => {
+          (_x: number, y: number, _w: number, h: number) => {
             const yOffsett = y > 0 ? y - h / 2 : 0
             scrollRef.current.scrollTo({ y: yOffsett, animated: false })
           },
         )
+        setTimeout(() => {
+          updateCurrentStep((currentStep) => {
+            const newStep = { ...currentStep }
+            newStep[key] = step
+            eventEmitter[key]?.emit('stepChange', step)
+            return newStep
+          })
+          resolve()
+        }, 100);
       }
-
-      setTimeout(() => {
+      else {
         updateCurrentStep((currentStep) => {
           const newStep = { ...currentStep }
           newStep[key] = step
@@ -160,7 +168,7 @@ export const TourGuideProvider = ({
           return newStep
         })
         resolve()
-      }, scrollRef ? 100 : 0);
+      }
       
     })
 
